@@ -9,7 +9,7 @@
     @Html.AntiForgeryToken()
     <div class="form-horizontal">
         <div style="background-color:#015FB9;margin:10px 0px 0px 0px;padding:20px 10px 20px 10px;color:white;font-weight:bold">
-            <h2>Section Three / Service Level Agreement</h2>
+            <h2>Marketing Service Request / Service Level Agreement</h2>
         </div>
 
         <div class="form-group">
@@ -73,7 +73,7 @@
         <div class="form-group ">
             <div class="checkbox col-md-12">
                 <div style="padding:0px 10px 0px 15px">
-                    @Html.CheckBox("agreementconfirm", false, new { @class = "eventchkbox", @onclick= "Confirm(this)"})
+                    @Html.CheckBox("agreementconfirm", false, new { @onclick= "Confirm(this)"})
                 </div>
 
                 <p style="font-weight:bold;padding:0px 10px 0px 10px">I	have	read	all	of	terms	and	conditions	above	and	I	agree	on	them</p>

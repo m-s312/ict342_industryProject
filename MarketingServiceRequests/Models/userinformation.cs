@@ -68,8 +68,14 @@ namespace MarketingServiceRequests.Models
         public bool Brochure { get; set; }
         public bool InvitationCard { get; set; }
         public bool PopupBanner { get; set; }
-
         public bool Poster { get; set; }
+
+        public HttpPostedFileBase BookletFile { get; set; }
+        public HttpPostedFileBase FlyerFile { get; set; }
+        public HttpPostedFileBase BrochureFile { get; set; }
+        public HttpPostedFileBase InvitationCardFile { get; set; }
+        public HttpPostedFileBase PopupBannerFile { get; set; }
+        public HttpPostedFileBase PosterFile { get; set; }
     }
 
     public class ServiceEvents

@@ -12,7 +12,7 @@
     </style>
     <script>
         $(document).ready(function () {
-            $('input:submit').attr('disabled', true);
+            $('input:submit').attr('disabled', false);
             $('input:file').change(function () {
                 if ($(this).val()) {
                     $('input:submit').removeAttr('disabled');
@@ -85,7 +85,7 @@
                         var InputId = $(this).attr("id");
                         var SpanId='#'+InputId.substring(0, InputId.length-5)+'span';
                         $(SpanId).html('');
-                        $('input:submit').attr('disabled', true);
+                        $('input:submit').attr('disabled', false);
                     }
                 });
 
@@ -99,7 +99,7 @@
     <div class="form-horizontal">
         <div style="background-color:#015FB9;margin:10px 0px 0px 0px;padding:20px 10px 20px 10px;color:white;font-weight:bold">
             <h2>
-                Section Two / Service Details / Production
+                Marketing Service Request / Service Details / Production
             </h2>
         </div>
         <div class="form-group">

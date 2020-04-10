@@ -27,7 +27,9 @@ namespace MarketingServiceRequests.Controllers
             if (ModelState != null && ModelState.IsValid)
             {
                 objUtility.CopyWriting(paramservicecopywriting, Session["Id"].ToString());
-                return RedirectToAction("Agreement", "ServiceAgreement");
+                //return RedirectToAction("Agreement", "ServiceAgreement");
+
+                return RedirectToAction("Designs", "Services");
             }
             return View();
         }
@@ -48,7 +50,10 @@ namespace MarketingServiceRequests.Controllers
             if (ModelState != null && ModelState.IsValid)
             {
                 objUtility.Designs(paramservicedesigns, Session["Id"].ToString(), Design_inputfile);
-                return RedirectToAction("Agreement", "ServiceAgreement");
+                // return RedirectToAction("Agreement", "ServiceAgreement");
+                //  return RedirectToAction("servicecategories", "Servicedetails");
+                return RedirectToAction("Events", "Services");
+
             }
             return View();
         }
@@ -69,7 +74,10 @@ namespace MarketingServiceRequests.Controllers
             if (ModelState != null && ModelState.IsValid)
             {
                 objUtility.Events(parameterserviceevents, Session["Id"].ToString(), Event_inputfile);
-                return RedirectToAction("Agreement", "ServiceAgreement");
+                //  return RedirectToAction("Agreement", "ServiceAgreement");
+                // return RedirectToAction("servicecategories", "Servicedetails");
+                return RedirectToAction("SocialMedia", "Services");
+                // < a href = "@Url.Action("SocialMedia", "Services")" >
             }
 
             return View();
@@ -91,7 +99,11 @@ namespace MarketingServiceRequests.Controllers
             if (ModelState != null && ModelState.IsValid)
             {
                 objUtility.SocialMedia(parameterserviceSocialMedia, Session["Id"].ToString());
-                return RedirectToAction("Agreement", "ServiceAgreement");
+                //return RedirectToAction("servicecategories", "Servicedetails");
+                return RedirectToAction("IMCWebsite", "Services");
+
+                //return RedirectToAction("Agreement", "ServiceAgreement");
+
             }
             return View();
         }
@@ -112,7 +124,10 @@ namespace MarketingServiceRequests.Controllers
             if (ModelState != null && ModelState.IsValid)
             {
                 objUtility.IMCWebsite(parameterserviceIMCWebsite, Session["Id"].ToString());
-                return RedirectToAction("Agreement", "ServiceAgreement");
+                //return RedirectToAction("servicecategories", "Servicedetails");
+                return RedirectToAction("Production", "Services");
+                //  return RedirectToAction("Agreement", "ServiceAgreement");
+               
             }
             return View();
         }
@@ -133,7 +148,9 @@ namespace MarketingServiceRequests.Controllers
             if (ModelState != null && ModelState.IsValid)
             {
                 objUtility.Production(paramserviceProduction, Session["Id"].ToString());
-                return RedirectToAction("Agreement", "ServiceAgreement");
+                 return RedirectToAction("Agreement", "ServiceAgreement");
+                //return RedirectToAction("servicecategories", "Servicedetails");
+               // return RedirectToAction("HomeGrid", "Home");
             }
             return View();
         }

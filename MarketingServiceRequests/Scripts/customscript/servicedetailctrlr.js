@@ -1,8 +1,9 @@
 ﻿$(document).ready(function () {
- 
+
+    /*
     $('.chkbox').on('change', function () {
         $('.chkbox').not(this).prop('checked', false);
-    });
+    }); */
 
   
 

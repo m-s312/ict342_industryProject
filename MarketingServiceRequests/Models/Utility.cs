@@ -24,12 +24,12 @@ namespace MarketingServiceRequests.Controllers
             string username = ConfigurationManager.AppSettings["username"];
             string password = ConfigurationManager.AppSettings["password"];
             string domain = ConfigurationManager.AppSettings["domain"];
-            string soap_url = ConfigurationManager.AppSettings["url"];            
+            string soap_url = ConfigurationManager.AppSettings["url"];
             ConnectToMSCRM(username, password, domain, soap_url);
             Guid userid = ((WhoAmIResponse)service.Execute(new WhoAmIRequest())).UserId;
             return userid;
         }
-        public static void ConnectToMSCRM(string UserName, string Password,string Domain, string SoapOrgServiceUri)
+        public static void ConnectToMSCRM(string UserName, string Password, string Domain, string SoapOrgServiceUri)
         {
             try
             {
@@ -54,9 +54,9 @@ namespace MarketingServiceRequests.Controllers
         {
             Guid UserId = ValidateUser();
             Guid Id = Guid.Empty;
-            if(UserId != null)
+            if (UserId != null)
             {
-                Entity enMSR = new Entity("imc_marketingservicerequest");
+                Entity enMSR = new Entity("campaign");
                 enMSR["imc_name"] = objEntity.Name;
                 enMSR["imc_position"] = objEntity.Position;
                 enMSR["imc_idnumber"] = objEntity.IDNumber;
@@ -69,45 +69,67 @@ namespace MarketingServiceRequests.Controllers
         }
 
         //Requirement Changed. UpdateServiceDetail converted to CreateServiceDetail
-        public void UpdateServiceDetail(ServiceDetails paramservicedetails, ServiceDetailsSelection paramcheckboxes, string Id)
+        public void UpdateServiceDetail(ServiceDetails paramservicedetails, ServiceDetailsSelection paramcheckboxes, string Id, string ContactId)
         {
             Guid UserId = ValidateUser();
-            if(UserId != null)
+            if (UserId != null)
             {
-                Entity enMSR = new Entity("imc_marketingservicerequest");
+                Entity enMSR = new Entity("campaign");
                 enMSR.Id = new Guid(Id);
+
                 enMSR["imc_projecttitle"] = paramservicedetails.Title;
                 enMSR["imc_businessobjective"] = paramservicedetails.BusinessObjective;
-                enMSR["imc_desireddatelaunchdate"] = paramservicedetails.DesiredLaunchDate;
+                enMSR["imc_desiredlaunchdate"] = paramservicedetails.DesiredLaunchDate;
+                enMSR["imc_requestedby"] = new EntityReference("contact", new Guid(ContactId));
+
+                OptionSetValueCollection targetaudiences = new OptionSetValueCollection();
+
                 if (paramcheckboxes.Public)
-                    enMSR["imc_targetaudiance"] = new OptionSetValue(176230000);
+                    targetaudiences.Add(new OptionSetValue(100000000));
                 if (paramcheckboxes.IMCPatients)
-                    enMSR["imc_targetaudiance"] = new OptionSetValue(176230001);
+                    targetaudiences.Add(new OptionSetValue(100000001));
                 if (paramcheckboxes.IMCEmployees)
-                    enMSR["imc_targetaudiance"] = new OptionSetValue(176230002);
+                    targetaudiences.Add(new OptionSetValue(100000002));
                 if (paramcheckboxes.Other)
-                    enMSR["imc_targetaudiance"] = new OptionSetValue(176230003);
-                byte[] bytes;
+                    targetaudiences.Add(new OptionSetValue(100000002));
+
+                enMSR["imc_targetaudiences"] = targetaudiences;
+
+
+
+
+
+
                 if (paramcheckboxes.Sponsor)
                 {
-                    enMSR["imc_costcenter"] = new OptionSetValue(176230000);
+                    enMSR["imc_costcenterbudgetapproval"] = new OptionSetValue(100000000);
+                }
+                if (paramcheckboxes.ApprovedBudget)
+                {
+                    enMSR["imc_costcenterbudgetapproval"] = new OptionSetValue(100000001);
+                }
+                byte[] bytes;
+
+                if (paramcheckboxes.Sponsor && paramservicedetails.Sponsors != null)
+                {
                     using (BinaryReader br = new BinaryReader(paramservicedetails.Sponsors.InputStream))
                     {
                         bytes = br.ReadBytes(paramservicedetails.Sponsors.ContentLength);
                     }
-                    CreateNotes("Sponsors", paramservicedetails.Sponsors.FileName, bytes, Id);
+                    CreateNotes("Sponsors", paramservicedetails.Sponsors.FileName, bytes, Id.ToString());
                 }
-                if (paramcheckboxes.ApprovedBudget)
+
+                if (paramcheckboxes.ApprovedBudget && paramservicedetails.ApprovedBudgetFromManagement != null)
                 {
-                    enMSR["imc_costcenter"] = new OptionSetValue(176230001);
                     using (BinaryReader br = new BinaryReader(paramservicedetails.ApprovedBudgetFromManagement.InputStream))
                     {
                         bytes = br.ReadBytes(paramservicedetails.ApprovedBudgetFromManagement.ContentLength);
                     }
-                    CreateNotes("Approved Budget From Management", paramservicedetails.ApprovedBudgetFromManagement.FileName, bytes, Id);
+                    CreateNotes("Approved Budget From Management", paramservicedetails.ApprovedBudgetFromManagement.FileName, bytes, Id.ToString());
                 }
+
                 service.Update(enMSR);
-            }            
+            }
         }
 
         public Guid CreateServiceDetail(ServiceDetails paramservicedetails, ServiceDetailsSelection paramcheckboxes, string ContactId)
@@ -116,31 +138,39 @@ namespace MarketingServiceRequests.Controllers
             Guid Id = Guid.Empty;
             if (UserId != null)
             {
-                Entity enMSR = new Entity("imc_marketingservicerequest");
-                enMSR["imc_name"] = paramservicedetails.Title;
+                Entity enMSR = new Entity("campaign");
+                enMSR["name"] = paramservicedetails.Title;
                 enMSR["imc_projecttitle"] = paramservicedetails.Title;
                 enMSR["imc_businessobjective"] = paramservicedetails.BusinessObjective;
-                enMSR["imc_desireddatelaunchdate"] = paramservicedetails.DesiredLaunchDate;
-                enMSR["imc_contact"] = new EntityReference("contact", new Guid(ContactId));
+                enMSR["imc_desiredlaunchdate"] = paramservicedetails.DesiredLaunchDate;
+                enMSR["imc_requestedby"] = new EntityReference("contact", new Guid(ContactId));
+                enMSR["imc_marketingrequesttype"] = new OptionSetValue(100000004);
+
+                OptionSetValueCollection targetaudiences = new OptionSetValueCollection();
+
                 if (paramcheckboxes.Public)
-                    enMSR["imc_targetaudiance"] = new OptionSetValue(176230000);
+                    targetaudiences.Add(new OptionSetValue(100000000));
                 if (paramcheckboxes.IMCPatients)
-                    enMSR["imc_targetaudiance"] = new OptionSetValue(176230001);
+                    targetaudiences.Add(new OptionSetValue(100000001));
                 if (paramcheckboxes.IMCEmployees)
-                    enMSR["imc_targetaudiance"] = new OptionSetValue(176230002);
+                    targetaudiences.Add(new OptionSetValue(100000002));
                 if (paramcheckboxes.Other)
-                    enMSR["imc_targetaudiance"] = new OptionSetValue(176230003);
+                    targetaudiences.Add(new OptionSetValue(100000002));
+
+                enMSR["imc_targetaudiences"] = targetaudiences;
+
+
                 byte[] bytes;
                 if (paramcheckboxes.Sponsor)
                 {
-                    enMSR["imc_costcenter"] = new OptionSetValue(176230000);                    
+                    enMSR["imc_costcenterbudgetapproval"] = new OptionSetValue(100000000);
                 }
                 if (paramcheckboxes.ApprovedBudget)
                 {
-                    enMSR["imc_costcenter"] = new OptionSetValue(176230001);                    
+                    enMSR["imc_costcenterbudgetapproval"] = new OptionSetValue(100000001);
                 }
                 Id = service.Create(enMSR);
-                if(Id != null && Id != Guid.Empty)
+                if (Id != null && Id != Guid.Empty)
                 {
                     if (paramcheckboxes.Sponsor && paramservicedetails.Sponsors != null)
                     {
@@ -193,7 +223,7 @@ namespace MarketingServiceRequests.Controllers
                     }
                     CreateNotes("Translation", paramservicecopywriting.Translation.FileName, bytes, Id);
                 }
-            }                
+            }
         }
 
         public void Designs(ServiceDesigns paramServiceDesigns, string Id, HttpPostedFileBase Design_inputfile)
@@ -203,47 +233,98 @@ namespace MarketingServiceRequests.Controllers
             {
                 byte[] bytes;
                 string strDesigntype = "";
-                Entity enMSR = new Entity("imc_marketingservicerequest");
+                Entity enMSR = new Entity("campaign");
                 enMSR.Id = new Guid(Id);
-                if (paramServiceDesigns.Poster)
-                {
-                    enMSR["imc_typeofdesign"] = new OptionSetValue(176230005);
-                    strDesigntype = "Poster";
-                }
-                if (paramServiceDesigns.PopupBanner)
-                {
-                    enMSR["imc_typeofdesign"] = new OptionSetValue(176230004);
-                    strDesigntype = "PopupBanner";
-                }
-                if (paramServiceDesigns.InvitationCard)
-                {
-                    enMSR["imc_typeofdesign"] = new OptionSetValue(176230003);
-                    strDesigntype = "InvitationCard";
-                }
-                if (paramServiceDesigns.Brochure)
-                {
-                    enMSR["imc_typeofdesign"] = new OptionSetValue(176230002);
-                    strDesigntype = "Brochure";
-                }
+
+                OptionSetValueCollection typeofdesigns = new OptionSetValueCollection();
+
+                //if (paramcheckboxes.Public)
+                //    targetaudiences.Add(new OptionSetValue(100000000));
+
+
                 if (paramServiceDesigns.Booklet)
-                {
-                    enMSR["imc_typeofdesign"] = new OptionSetValue(176230000);
-                    strDesigntype = "Booklet";
-                }
+                    typeofdesigns.Add(new OptionSetValue(100000000));
                 if (paramServiceDesigns.Flyer)
-                {
-                    enMSR["imc_typeofdesign"] = new OptionSetValue(176230001);
-                    strDesigntype = "Flyer";
-                }
+                    typeofdesigns.Add(new OptionSetValue(100000001));
+                if (paramServiceDesigns.Brochure)
+                    typeofdesigns.Add(new OptionSetValue(100000002));
+
+                if (paramServiceDesigns.InvitationCard)
+                    typeofdesigns.Add(new OptionSetValue(100000003));
+
+                if (paramServiceDesigns.PopupBanner)
+                    typeofdesigns.Add(new OptionSetValue(100000004));
+                if (paramServiceDesigns.Poster)
+                    typeofdesigns.Add(new OptionSetValue(100000005));
+
+
+                enMSR["imc_typeofdesigns"] = typeofdesigns;
+
+
+
                 service.Update(enMSR);
-                if (Design_inputfile != null)
+
+
+
+
+
+
+                if (paramServiceDesigns.BookletFile != null)
                 {
-                    using (BinaryReader br = new BinaryReader(Design_inputfile.InputStream))
+                    using (BinaryReader br = new BinaryReader(paramServiceDesigns.BookletFile.InputStream))
                     {
-                        bytes = br.ReadBytes(Design_inputfile.ContentLength);
+                        bytes = br.ReadBytes(paramServiceDesigns.BookletFile.ContentLength);
                     }
-                    CreateNotes(strDesigntype, Design_inputfile.FileName, bytes, Id);
+                    CreateNotes("Booklet", paramServiceDesigns.BookletFile.FileName, bytes, Id);
                 }
+
+
+                if (paramServiceDesigns.FlyerFile != null)
+                {
+                    using (BinaryReader br = new BinaryReader(paramServiceDesigns.FlyerFile.InputStream))
+                    {
+                        bytes = br.ReadBytes(paramServiceDesigns.FlyerFile.ContentLength);
+                    }
+                    CreateNotes("Flyer", paramServiceDesigns.FlyerFile.FileName, bytes, Id);
+
+                }
+
+                if (paramServiceDesigns.BrochureFile != null)
+                {
+                    using (BinaryReader br = new BinaryReader(paramServiceDesigns.BrochureFile.InputStream))
+                    {
+                        bytes = br.ReadBytes(paramServiceDesigns.BrochureFile.ContentLength);
+                    }
+                    CreateNotes("Brochure", paramServiceDesigns.BrochureFile.FileName, bytes, Id);
+                }
+
+                if (paramServiceDesigns.InvitationCardFile != null)
+                {
+                    using (BinaryReader br = new BinaryReader(paramServiceDesigns.InvitationCardFile.InputStream))
+                    {
+                        bytes = br.ReadBytes(paramServiceDesigns.InvitationCardFile.ContentLength);
+                    }
+                    CreateNotes("InvitationCard", paramServiceDesigns.InvitationCardFile.FileName, bytes, Id);
+                }
+                if (paramServiceDesigns.PopupBannerFile != null)
+                {
+                    using (BinaryReader br = new BinaryReader(paramServiceDesigns.PopupBannerFile.InputStream))
+                    {
+                        bytes = br.ReadBytes(paramServiceDesigns.PopupBannerFile.ContentLength);
+                    }
+                    CreateNotes("PopupBanner", paramServiceDesigns.PopupBannerFile.FileName, bytes, Id);
+                }
+
+                if (paramServiceDesigns.PosterFile != null)
+                {
+                    using (BinaryReader br = new BinaryReader(paramServiceDesigns.PosterFile.InputStream))
+                    {
+                        bytes = br.ReadBytes(paramServiceDesigns.PosterFile.ContentLength);
+                    }
+                    CreateNotes("Poster", paramServiceDesigns.PosterFile.FileName, bytes, Id);
+                }
+
+
             }
         }
 
@@ -254,62 +335,72 @@ namespace MarketingServiceRequests.Controllers
             {
                 byte[] bytes;
                 string strLocation = "";
-                Entity enMSR = new Entity("imc_marketingservicerequest");
+                Entity enMSR = new Entity("campaign");
                 enMSR.Id = new Guid(Id);
+
+                OptionSetValueCollection locations = new OptionSetValueCollection();
                 if (paramServiceEvents.IMCAuditorium)
                 {
-                    enMSR["imc_location"] = new OptionSetValue(176230001);
-                    strLocation = "IMC Auditorium";
-                }                    
+                    locations.Add(new OptionSetValue(100000000));
+                }
                 if (paramServiceEvents.IMCMainlobby)
                 {
-                    enMSR["imc_location"] = new OptionSetValue(176230000);
-                    strLocation = "IMC Mainlobby";
-                }                    
-                
-                    enMSR["imc_duration"] = Convert.ToInt32(paramServiceEvents.duration);
-                
-                    enMSR["imc_expectednumberofparticipants"] = Convert.ToInt32(paramServiceEvents.Expectedparticipant);
+                    locations.Add(new OptionSetValue(100000001));
+                }
+
+                enMSR["imc_locations"] = locations;
+                enMSR["imc_duration"] = Convert.ToInt32(paramServiceEvents.duration);
+                enMSR["imc_expectednumberofparticipants"] = Convert.ToInt32(paramServiceEvents.Expectedparticipant);
+
+                OptionSetValueCollection eventselements = new OptionSetValueCollection();
+
+
                 if (paramServiceEvents.AudiovisualSystem)
-                    enMSR["imc_imceventselements"] = new OptionSetValue(1);
+                    eventselements.Add(new OptionSetValue(1));
+
                 if (paramServiceEvents.Stage)
-                    enMSR["imc_imceventselements"] = new OptionSetValue(2);
+                    eventselements.Add(new OptionSetValue(2));
                 if (paramServiceEvents.PopupBanners)
-                    enMSR["imc_imceventselements"] = new OptionSetValue(3);
+                    eventselements.Add(new OptionSetValue(3));
                 if (paramServiceEvents.Flowers)
-                    enMSR["imc_imceventselements"] = new OptionSetValue(4);
+                    eventselements.Add(new OptionSetValue(4));
                 if (paramServiceEvents.Water)
-                    enMSR["imc_imceventselements"] = new OptionSetValue(5);
+                    eventselements.Add(new OptionSetValue(5));
                 if (paramServiceEvents.Printed)
-                    enMSR["imc_imceventselements"] = new OptionSetValue(6);
+                    eventselements.Add(new OptionSetValue(6));
                 if (paramServiceEvents.Lighting)
-                    enMSR["imc_imceventselements"] = new OptionSetValue(7);
+                    eventselements.Add(new OptionSetValue(7));
                 if (paramServiceEvents.Giveaways)
-                    enMSR["imc_imceventselements"] = new OptionSetValue(8);
+                    eventselements.Add(new OptionSetValue(8));
                 if (paramServiceEvents.VIPgifts)
-                    enMSR["imc_imceventselements"] = new OptionSetValue(9);
+                    eventselements.Add(new OptionSetValue(9));
                 if (paramServiceEvents.VIPgifts)
-                    enMSR["imc_imceventselements"] = new OptionSetValue(10);
+                    eventselements.Add(new OptionSetValue(10));
                 if (paramServiceEvents.VIPLunch)
-                    enMSR["imc_imceventselements"] = new OptionSetValue(11);
+                    eventselements.Add(new OptionSetValue(11));
                 if (paramServiceEvents.PhotoBooth)
-                    enMSR["imc_imceventselements"] = new OptionSetValue(12);
+                    eventselements.Add(new OptionSetValue(12));
                 if (paramServiceEvents.SMSInvitation)
-                    enMSR["imc_imceventselements"] = new OptionSetValue(13);
+                    eventselements.Add(new OptionSetValue(13));
                 if (paramServiceEvents.EmployeesInvitationEmails)
-                    enMSR["imc_imceventselements"] = new OptionSetValue(14);
+                    eventselements.Add(new OptionSetValue(14));
                 if (paramServiceEvents.Fulleventcoverage)
-                    enMSR["imc_imceventselements"] = new OptionSetValue(15);
+                    eventselements.Add(new OptionSetValue(15));
                 if (paramServiceEvents.ActivityItems)
-                    enMSR["imc_imceventselements"] = new OptionSetValue(16);
+                    eventselements.Add(new OptionSetValue(16));
                 if (paramServiceEvents.SocialMedia)
-                    enMSR["imc_imceventselements"] = new OptionSetValue(17);
+                    eventselements.Add(new OptionSetValue(17));
                 if (paramServiceEvents.SocialMediaconverge)
-                    enMSR["imc_imceventselements"] = new OptionSetValue(18);
+                    eventselements.Add(new OptionSetValue(18));
                 if (paramServiceEvents.IMCWebsiteBanner)
-                    enMSR["imc_imceventselements"] = new OptionSetValue(19);
+                    eventselements.Add(new OptionSetValue(19));
                 if (paramServiceEvents.IMCWebsiteAnnouncement)
-                    enMSR["imc_imceventselements"] = new OptionSetValue(20);
+                    eventselements.Add(new OptionSetValue(20));
+
+
+                enMSR["imc_eventelements"] = eventselements;
+
+
                 service.Update(enMSR);
 
                 if (Events_inputfile != null)
@@ -328,7 +419,7 @@ namespace MarketingServiceRequests.Controllers
             if (UserId != null)
             {
                 byte[] bytes;
-                if(paramServiceSocialMedia.SocialMediaContentdevelopment != null)
+                if (paramServiceSocialMedia.SocialMediaContentdevelopment != null)
                 {
                     using (BinaryReader br = new BinaryReader(paramServiceSocialMedia.SocialMediaContentdevelopment.InputStream))
                     {
@@ -454,17 +545,17 @@ namespace MarketingServiceRequests.Controllers
         }
 
         public void CreateNotes(string subject, string filename, byte[] data, string entityId)
-        {            
+        {
             Entity note = new Entity("annotation");
             note["subject"] = subject;
             note["filename"] = filename;
             note["documentbody"] = Convert.ToBase64String(data);
-            note["objectid"] = new EntityReference("imc_marketingservicerequest", new Guid(entityId));
-            service.Create(note);            
+            note["objectid"] = new EntityReference("campaign", new Guid(entityId));
+            service.Create(note);
         }
 
         public Contact IsValidUser(Login objLogin)
-        {            
+        {
             Guid UserId = ValidateUser();
             Contact objContact = new Contact();
             if (UserId != null)
@@ -472,22 +563,22 @@ namespace MarketingServiceRequests.Controllers
                 QueryExpression qryContact = new QueryExpression("contact");
                 qryContact.Criteria.AddCondition("emailaddress1", ConditionOperator.Equal, objLogin.UserName);
                 qryContact.Criteria.AddCondition("emailaddress1", ConditionOperator.Equal, objLogin.Password);
-                qryContact.ColumnSet = new ColumnSet(new string[] { "fullname","contactid" });
-                EntityCollection ecContact = service.RetrieveMultiple(qryContact);                
+                qryContact.ColumnSet = new ColumnSet(new string[] { "fullname", "contactid" });
+                EntityCollection ecContact = service.RetrieveMultiple(qryContact);
                 if (ecContact.Entities.Count > 0)
-                {                    
+                {
                     objContact.Fullname = ecContact.Entities[0].Attributes["fullname"].ToString();
-                    objContact.ContactId= ecContact.Entities[0].Attributes["contactid"].ToString();
-                }                    
+                    objContact.ContactId = ecContact.Entities[0].Attributes["contactid"].ToString();
+                }
             }
             return objContact;
         }
 
         public List<MarketingServiceRequest> GetMarketingServiceRequest(string ContactId)
         {
-           
-            QueryExpression qryMSR = new QueryExpression("imc_marketingservicerequest");
-            qryMSR.Criteria.AddCondition("imc_contact", ConditionOperator.Equal, new Guid(ContactId));
+
+            QueryExpression qryMSR = new QueryExpression("campaign");
+            qryMSR.Criteria.AddCondition("imc_requestedby", ConditionOperator.Equal, new Guid(ContactId));
             qryMSR.Criteria.AddCondition("statecode", ConditionOperator.Equal, 0);
             qryMSR.ColumnSet = new ColumnSet(true);
             EntityCollection ecMSR = service.RetrieveMultiple(qryMSR);
@@ -506,11 +597,11 @@ namespace MarketingServiceRequests.Controllers
                     string strDesireDate = "";
                     for (int i = 0; i < ecMSR.Entities.Count; i++)
                     {
-                        if (ecMSR.Entities[i].Contains("imc_costcenter"))
+                        if (ecMSR.Entities[i].Contains("imc_costcenterbudget"))
                         {
-                            if (((OptionSetValue)ecMSR.Entities[i].Attributes["imc_costcenter"]).Value == 176230000)
+                            if (((OptionSetValue)ecMSR.Entities[i].Attributes["imc_costcenterbudget"]).Value == 176230000)
                                 strCostCenter = "Sponsers";
-                            else if (((OptionSetValue)ecMSR.Entities[i].Attributes["imc_costcenter"]).Value == 176230001)
+                            else if (((OptionSetValue)ecMSR.Entities[i].Attributes["imc_costcenterbudget"]).Value == 176230001)
                                 strCostCenter = "Approved budget From Management";
                         }
                         if (ecMSR.Entities[i].Contains("imc_servicerequeststatus"))
@@ -527,9 +618,9 @@ namespace MarketingServiceRequests.Controllers
                                 strStatus = "Completed";
                         }
 
-                        if (ecMSR.Entities[i].Contains("imc_desireddatelaunchdate"))
+                        if (ecMSR.Entities[i].Contains("imc_desiredlaunchdate"))
                         {
-                            DateTime ParameterDesiredDate = (DateTime)ecMSR.Entities[i].Attributes["imc_desireddatelaunchdate"];
+                            DateTime ParameterDesiredDate = (DateTime)ecMSR.Entities[i].Attributes["imc_desiredlaunchdate"];
                             DesireDate = CommonUtility.RetrieveLocalTimeFromUTCTime(service, ParameterDesiredDate).ToString();
                             arrDesireDate = DesireDate.Split(' ');
                             strDesireDate = arrDesireDate[0];
@@ -545,7 +636,7 @@ namespace MarketingServiceRequests.Controllers
                         //ecMSR.Entities[i].Attributes["imc_desireddatelaunchdate"]
 
                         lstMSR.Add(new MarketingServiceRequest
-                        {                            
+                        {
                             ProjectTitle = strProjectTitle,
                             DesiredDate = strDesireDate,
                             BusinessObjective = strBusinessObjective,
@@ -555,7 +646,7 @@ namespace MarketingServiceRequests.Controllers
                     }
                 }
             }
-            
+
             return lstMSR;
         }
     }

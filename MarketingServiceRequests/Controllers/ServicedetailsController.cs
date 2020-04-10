@@ -23,12 +23,17 @@ namespace MarketingServiceRequests.Controllers
         [HttpPost]
         public ActionResult servicedetail(ServiceDetails paramservicedetails, ServiceDetailsSelection paramcheckboxes)
         {
+            if (Session["ContactId"] == null)
+                return RedirectToAction("Login", "Login");
+
             if (ModelState != null && ModelState.IsValid)
             {
                 Utility objUtility = new Utility();
                 Session["Id"] = objUtility.CreateServiceDetail(paramservicedetails, paramcheckboxes, Session["ContactId"].ToString());
-                return RedirectToAction("servicecategories", "Servicedetails");
-            }            
+                //return RedirectToAction("servicecategories", "Servicedetails");
+                return RedirectToAction("copywriting", "Services");
+
+            }
             return View();
         }
 
@@ -47,8 +52,10 @@ namespace MarketingServiceRequests.Controllers
         [ActionName("servicecategories")]
         public ActionResult servicecategories_post()
         {
-            if (ModelState != null && ModelState.IsValid) {
-                return RedirectToAction("Agreement", "ServiceAgreement");
+            if (ModelState != null && ModelState.IsValid)
+            {
+                // return RedirectToAction("Agreement", "ServiceAgreement");
+                return RedirectToAction("servicecategories", "Servicedetails");
             }
             return View();
         }

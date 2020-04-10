@@ -12,65 +12,55 @@
     </style>
     <script>
         $(document).ready(function () {
-            $('input[type=submit]').prop("disabled", true);
-            var chkboxes = $('.chkbox');
-            var DivDesignAttach = $('#DivDesignAttach');
-            chkboxes.on('change', function () {
-               // $('input[type=submit]').prop('disabled', !chkboxes.filter(':checked').length);
-                chkboxes.not(this).prop('checked', false);                
-                if (chkboxes.filter(':checked').length > 0) {
-                    DivDesignAttach.show();
-                }
-                else {
-                    DivDesignAttach.hide();
-                    $('input[type="file"]').val('');
-                    $('#Design_span').html('');
-                    $('input[type=submit]').prop('disabled',true);
-                }
-            }).trigger('change');
-            $("#Design_link").on('click', function (e) {
+            $('input[type=submit]').prop("disabled", false); 
+
+
+            $("#Booklet_link").on('click', function (e) {
                 e.preventDefault();
-                $("#Design_input:hidden").trigger('click');
+                $("#Booklet_input:hidden").trigger('click');
             });
-            $('#Design_input').change(function (e) {
+
+            $('#Booklet_input').change(function (e) {
                 var FileName = e.target.files[0].name;
-                $('#Design_span').html(FileName);
+                $('#Booklet_span').html(FileName);
             });
 
-            //$('input[type="checkbox"]').on('change', function () {
-            //    $('input[type=submit]').prop('disabled', !chkboxes.filter(':checked').length);
-            //    //chkboxes.not(this).prop('checked', false);
-            //}).trigger('change');
 
-            var chkboxes1 = $('.chkbox');
-
-            $('input[type="file"]').change(function () {
-
-                //because this is single file upload I use only first index
-                var f = this.files[0]
-
-                //33554432 32 mb 32*1024*1024
-                if (f.size > 33554432)
-                {
-                    alert("Allowed file size exceeded. (Max. 32 MB)")
-                    this.value = null;
-                    var InputId = $(this).attr("id");
-                    var SpanId='#'+InputId.substring(0, InputId.length-5)+'span';
-                    $(SpanId).html('');
-                    $('input:submit').attr('disabled', true);
-                }
-
-                if (!chkboxes1.filter(':checked').length == 0) {
-                    
-                        if ($('#Design_input')[0].files.length != 0) {
-                            $('input[type=submit]').prop('disabled', false);
-                        }
-                        else { $('input[type=submit]').prop('disabled', true); }
-                   
-                    
-                }
-
+            $("#Flyer_link").on('click', function (e) {
+                debugger;
+                e.preventDefault();
+                $("#Flyer_input:hidden").trigger('click');
             });
+
+
+            $('#Flyer_input').change(function (e) {
+                var FileName = e.target.files[0].name;
+                $('#Flyer_span').html(FileName);
+            });
+
+
+
+
+
+            $("#Brochure_link").on('click', function (e) {
+                e.preventDefault();
+                $("#Brochure_input:hidden").trigger('click');
+            });
+
+            $("#InvitationCard_link").on('click', function (e) {
+                e.preventDefault();
+                $("#InvitationCard_input:hidden").trigger('click');
+            });
+
+            $("#PopupBanner_link").on('click', function (e) {
+                e.preventDefault();
+                $("#PopupBanner_input:hidden").trigger('click');
+            });
+            $("#Poster_link").on('click', function (e) {
+                e.preventDefault();
+                $("#Poster_input:hidden").trigger('click');
+            });
+
 
         });
     </script>
@@ -81,7 +71,7 @@
     @Html.AntiForgeryToken()
     <div class="form-horizontal">
         <div style="background-color:#015FB9;margin:10px 0px 0px 0px;padding:20px 10px 20px 10px;color:white;font-weight:bold">
-            <h2>Section Two / Service Details / Designs</h2>
+            <h2>Marketing Service Request / Service Details / Designs</h2>
         </div>
         <div class="form-group">
             <div class="col-md-4" style="padding:0px 0px 0px 20px;margin:0px 0px 0px 0px">
@@ -102,27 +92,61 @@
                 <h3>Type of Design</h3>
             </div>
         </div>
-        <div class="form-group">
-            <div class="col-md-12">
-                @Html.CheckBox("Booklet", false, new { @class = "chkbox", })<span style="padding:0 15px 0 0px">Booklet </span>
-                @Html.CheckBox("Flyer", false, new { @class = "chkbox" }) <span style="padding:0 15px 0 0px"> Flyer </span>
-                @Html.CheckBox("Brochure", false, new { @class = "chkbox" }) <span style="padding:0 15px 0 0px"> Brochure </span>
-                @Html.CheckBox("InvitationCard", false, new { @class = "chkbox" })<span style="padding:0 15px 0 0px">Invitation Card</span>
-                @Html.CheckBox("PopupBanner", false, new { @class = "chkbox" }) <span style="padding:0 15px 0 0px"> Popup Banner </span>
-                @Html.CheckBox("Poster", false, new { @class = "chkbox" })<span>Poster</span>
+        <div class="form-group" style="vertical-align:middle;">
+            <div class="col-md-offset-2 col-md-10">
+                @Html.CheckBox("Booklet", false)<span style="padding:0 15px 0 0px">Booklet </span>
+                <input type="file" name="BookletFile" id="Booklet_input" />
+                <a href="" id="Booklet_link" style="padding:0 10px 0 10px"> (Attach Booklet) </a>
+                <span id="Booklet_span"></span>
             </div>
         </div>
-        <div class="form-group">
-            <div id="DivDesignAttach" class="col-md-12">
-                <input type="file" name="Design_inputfile" id="Design_input" />
-                <a href="" id="Design_link" style="padding:0 10px 0 10px;">  (Attach Content or any required elements)</a>
-                <span id="Design_span"></span>
+        <div class="form-group" style="vertical-align:middle;">
+            <div class="col-md-offset-2 col-md-10">
+                @Html.CheckBox("Flyer", false) <span style="padding:0 15px 0 0px"> Flyer </span>
+                <input type="file" name="FlyerFile" id="Flyer_input" />
+                <a href="" id="Flyer_link" style="padding:0 10px 0 10px"> (Attach Flyer) </a>
+                <span id="Flyer_span"></span>
             </div>
         </div>
+        <div class="form-group" style="vertical-align:middle;">
+            <div class="col-md-offset-2 col-md-10">
+                @Html.CheckBox("Brochure", false) <span style="padding:0 15px 0 0px"> Brochure </span>
+                <input type="file" name="BrochureFile" id="Brochure_input" />
+                <a href="" id="Brochure_link" style="padding:0 10px 0 10px"> (Attach Brochure) </a>
+                <span id="Brochure_span"></span>
+            </div>
+        </div>
+        <div class="form-group" style="vertical-align:middle;">
+            <div class="col-md-offset-2 col-md-10">
+                @Html.CheckBox("InvitationCard", false) <span style="padding:0 15px 0 0px"> InvitationCard </span>
+                <input type="file" name="InvitationCardFile" id="InvitationCard_input" />
+                <a href="" id="InvitationCard_link" style="padding:0 10px 0 10px"> (Attach InvitationCard) </a>
+                <span id="InvitationCard_span"></span>
+            </div>
+        </div>
+
+        <div class="form-group" style="vertical-align:middle;">
+            <div class="col-md-offset-2 col-md-10">
+                @Html.CheckBox("PopupBanner", false) <span style="padding:0 15px 0 0px"> PopupBanner </span>
+                <input type="file" name="PopupBannerFile" id="PopupBanner_input" />
+                <a href="" id="PopupBanner_link" style="padding:0 10px 0 10px"> (Attach PopupBanner) </a>
+                <span id="PopupBanner_span"></span>
+            </div>
+        </div>
+        <div class="form-group" style="vertical-align:middle;">
+            <div class="col-md-offset-2 col-md-10">
+                @Html.CheckBox("Poster", false) <span style="padding:0 15px 0 0px"> Poster </span>
+                <input type="file" name="PosterFile" id="Poster_input" />
+                <a href="" id="Poster_link" style="padding:0 10px 0 10px"> (Attach Poster) </a>
+                <span id="Poster_span"></span>
+            </div>
+        </div>
+
+
         <div class="form-group">
             <div class="col-md-12">
                 <p>
-                    Note:	Afer	compleBng	your	request,	the	high	resoluBon	design	will	be	shred	with	you	and	you	have	to	print	it	through	Purchasing	department
+                    Note:	Afer	completing	your	request,	the	high	resolution	design	will	be	shred	with	you	and	you	have	to	print	it	through	Purchasing	department.
                 </p>
             </div>
         </div>

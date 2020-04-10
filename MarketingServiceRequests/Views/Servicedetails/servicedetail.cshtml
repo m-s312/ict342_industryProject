@@ -20,7 +20,7 @@
     <script>
 
         $(document).ready(function () {
-            $('input[type=submit]').prop("disabled", true);
+            $('input[type=submit]').prop("disabled", false);
 
 
             $("#Sponsors_link").on('click', function (e) {
@@ -47,9 +47,12 @@
             var chkboxes1 = $('.chkbox');
             var chkboxes2 = $('.chkcostctr');
 
-            $('.chkbox').on('change', function () {
-                $('.chkbox').not(this).prop('checked', false);
 
+
+            $('.chkbox').on('change', function () {
+                //$('.chkbox').not(this).prop('checked', false);
+
+                debugger;
                 if (chkboxes1.filter(':checked').length > 0) {
                     if (!chkboxes1.filter(':checked').length + !chkboxes2.filter(':checked').length == 0) {
 
@@ -57,28 +60,28 @@
                             if ($('#Sponsors_input')[0].files.length != 0) {
                                 $('input[type=submit]').prop('disabled', false);
                             }
-                            else { $('input[type=submit]').prop('disabled', true); }
+                            else { $('input[type=submit]').prop('disabled', false); }
                         }
                         if ($('#approvedbudget').prop('checked') == true) {
                             if ($('#Approved_input')[0].files.length != 0) {
                                 $('input[type=submit]').prop('disabled', false);
                             }
-                            else { $('input[type=submit]').prop('disabled', true); }
+                            else { $('input[type=submit]').prop('disabled', false); }
                         }
 
 
                     }
-                } else { $('input[type=submit]').prop('disabled', true); }
+                } else { $('input[type=submit]').prop('disabled', false); }
             });
 
-           
+
 
             $('.chkcostctr').on('change', function () {
                 $('.chkcostctr').not(this).prop('checked', false);
                 $('input[type="file"]').val('');
                 $('#Sponsors_span').html('');
                 $('#Approved_span').html('');
-                $('input:submit').attr('disabled', true);
+                $('input:submit').attr('disabled', false);
             });
 
 
@@ -108,13 +111,16 @@
                         if ($('#Sponsors_input')[0].files.length != 0) {
                             $('input[type=submit]').prop('disabled', false);
                         }
-                        else { $('input[type=submit]').prop('disabled', true); }
+                        else {
+                            $('input[type=submit]').prop('disabled', false
+                            );
+                        }
                     }
                     if ($('#approvedbudget').prop('checked') == true) {
                         if ($('#Approved_input')[0].files.length != 0) {
                             $('input[type=submit]').prop('disabled', false);
                         }
-                        else { $('input[type=submit]').prop('disabled', true); }
+                        else { $('input[type=submit]').prop('disabled', false); }
                     }
                 }
 
@@ -131,7 +137,7 @@
     @Html.AntiForgeryToken()
     <div class="form-horizontal">
         <div style="background-color:#015FB9;margin:10px 0px 0px 0px;padding:20px 10px 20px 10px;color:white;font-weight:bold">
-            <h2>Section Two / Service Details</h2>
+            <h2>Marketing Service Request / Service Details</h2>
         </div>
         <div class="form-group">
             <div class="col-md-4" style="padding:0px 0px 0px 20px;margin:0px 0px 0px 0px">
@@ -183,10 +189,10 @@
             </div>
             <div class="col-md-10" style="padding-top:8px">
                 <div>
-                    @Html.CheckBox("Public", false, new { @class = "chkbox", })<span style="padding:0 15px 0 0px">Public</span>
-                    @Html.CheckBox("IMCPatients", false, new { @class = "chkbox" }) <span style="padding:0 15px 0 0px"> IMC Patients </span>
-                    @Html.CheckBox("IMCEmployees", false, new { @class = "chkbox" }) <span style="padding:0 15px 0 0px"> IMC Employees </span>
-                    @Html.CheckBox("Manager", false, new { @class = "chkbox" })<span style="padding:0 15px 0 0px">Other</span>
+                    @Html.CheckBox("Public", false)<span style="padding:0 15px 0 0px">Public</span>
+                    @Html.CheckBox("IMCPatients", false) <span style="padding:0 15px 0 0px"> IMC Patients </span>
+                    @Html.CheckBox("IMCEmployees", false) <span style="padding:0 15px 0 0px"> IMC Employees </span>
+                    @Html.CheckBox("Other", false)<span style="padding:0 15px 0 0px">Other</span>
                 </div>
 
                 @Html.ValidationMessageFor(model => model.TargetAudience, "", new { @class = "text-danger" })
@@ -223,5 +229,7 @@
                 <input type="submit" value="Next" id="btnsubmit" class="btn" style="background-color:#015FB9;color:white;" />
             </div>
         </div>
+
+
     </div>
-                    }
+}
